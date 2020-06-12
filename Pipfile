@@ -13,7 +13,6 @@ flask-cors = "*"
 flask-heroku = "*"
 gunicorn = "*"
 psycopg2-binary = "*"
-werkzeug = "*"
 
 [requires]
 python_version = "3.8"
