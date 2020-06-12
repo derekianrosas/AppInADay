@@ -18,11 +18,20 @@ ma = Marshmallow(app)
 heroku = Heroku(app)
 CORS(app)
 
-class FileToUpload(db.Model):
+class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
 
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
+
+class FileSchema(ma.Schema):
+    class Meta:
+        fields = ["id", "name", "data"]
+
+files_schema = FileSchema(many=True)
 
 @app.route('/upload')
 def upload_file():
@@ -33,11 +42,18 @@ def upload_addfile():
     if request.method == 'POST':
       f = request.files['file']
       
-      newFile = FileToUpload(name=f.filename, data=f.read())
+      newFile = File(name=f.filename, data=f.read())
       db.session.add(newFile)
       db.session.commit()
 
       return 'file uploaded successfully'
+
+@app.route('/files/get', methods=['GET'])
+def get_all_files():
+    all_files = db.session.query(File.id, File.name, File.data).all()
+    return jsonify(all_files)
+
+    # return jsonify(files_schema.dump(all_files))
 
 		
 if __name__ == '__main__':
